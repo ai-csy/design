@@ -152,7 +152,7 @@ const gradPresets = [
   { c1: '#1a1a1a', c2: '#555555', angle: 180 }, { c1: '#F39C12', c2: '#E8423A', angle: 135 },
   { c1: '#9B59B6', c2: '#3A7CE8', angle: 135 }, { c1: '#2ECC71', c2: '#1ABC9C', angle: 180 },
 ];
-let mode = 'solid', currentBg = '#1a1a1a', currentGrad = { c1: '#FF6B6B', c2: '#4ECDC4', angle: 90 }, currentFontIdx = 0;
+let mode = 'solid', currentBg = '#1a1a1a', currentGrad = { c1: '#FF6B6B', c2: '#4ECDC4', angle: 90 }, currentFontIdx = 0, currentFontSize = 200;
 const fontGrid = document.getElementById('fontGrid');
 const presetsEl = document.getElementById('presets');
 const gradGridEl = document.getElementById('gradGrid');
@@ -199,7 +199,7 @@ colorPicker.addEventListener('input', () => { currentBg = colorPicker.value; doc
 gradC1El.addEventListener('input', () => { currentGrad.c1 = gradC1El.value; document.querySelectorAll('.grad-swatch').forEach(s => s.classList.remove('active')); draw(); });
 gradC2El.addEventListener('input', () => { currentGrad.c2 = gradC2El.value; document.querySelectorAll('.grad-swatch').forEach(s => s.classList.remove('active')); draw(); });
 txtEl.addEventListener('input', draw);
-fsSlider.addEventListener('input', () => { fsValEl.textContent = fsSlider.value; draw(); });
+fsSlider.addEventListener('input', () => { currentFontSize = parseInt(fsSlider.value); fsValEl.textContent = currentFontSize; draw(); });
 document.getElementById('btnRandom').onclick = () => {
   const r = () => Math.floor(Math.random() * 256);
   const hex = () => '#' + [r(), r(), r()].map(v => v.toString(16).padStart(2, '0')).join('');
@@ -230,7 +230,7 @@ function wrapText(c, text, maxWidth) {
   return lines;
 }
 async function draw() {
-  const size = 1000, text = txtEl.value||'', fontSize = parseInt(fsSlider.value), font = fonts[currentFontIdx], padding = 60;
+  const size = 1000, text = txtEl.value||'', fontSize = currentFontSize, font = fonts[currentFontIdx], padding = 60;
   const fontStr = `${font.weight} ${fontSize}px ${font.family}`;
   // 매번 해당 폰트 로딩 보장
   if (document.fonts && document.fonts.load) {
