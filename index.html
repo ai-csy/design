@@ -249,13 +249,29 @@ function draw() {
 document.getElementById('btnDl').onclick = () => {
   if (!txtEl.value.trim()) { alert('텍스트를 입력해주세요!'); return; }
   draw();
-  mainCanvas.toBlob(blob => {
-    const url = URL.createObjectURL(blob);
+  const isAndroid = /android/i.test(navigator.userAgent);
+  if (isAndroid) {
+    // 안드로이드: dataURL 방식
+    const dataUrl = mainCanvas.toDataURL('image/png');
     const a = document.createElement('a');
-    a.href = url; a.download = 'kakao_openchat.png';
+    a.href = dataUrl; a.download = 'kakao_openchat.png';
     document.body.appendChild(a); a.click();
-    setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
-  }, 'image/png');
+    setTimeout(() => a.remove(), 1500);
+  } else if (mainCanvas.toBlob) {
+    // PC, iOS: toBlob 방식
+    mainCanvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'kakao_openchat.png';
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1500);
+    }, 'image/png');
+  } else {
+    // fallback: 새 탭에서 열고 수동 저장
+    const dataUrl = mainCanvas.toDataURL('image/png');
+    window.open(dataUrl, '_blank');
+    alert('이미지를 꾹 눌러서 저장해주세요!');
+  }
 };
 // 폰트 로딩 완료 후 draw (measureText 오작동 방지)
 if (document.fonts && document.fonts.ready) {
