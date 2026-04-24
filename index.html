@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>카카오톡 오픈채팅 이미지 생성</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Nanum+Gothic:wght@400;700;800&family=Black+Han+Sans&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 :root {
@@ -141,9 +142,9 @@ canvas#thumbCanvas { width: 56px; height: 56px; display: block; }
 const fonts = [
   { label: 'Noto Sans KR', family: "'Noto Sans KR', sans-serif", weight: '700' },
   { label: 'Nanum Gothic', family: "'Nanum Gothic', sans-serif", weight: '800' },
-  { label: 'Black Han Sans', family: "'Black Han Sans', sans-serif", weight: '400' },
   { label: '굵은 Noto', family: "'Noto Sans KR', sans-serif", weight: '900' },
-  { label: '얇은 Nanum', family: "'Nanum Gothic', sans-serif", weight: '700' },
+  { label: '굵은 Nanum', family: "'Nanum Gothic', sans-serif", weight: '700' },
+  { label: '기본 고딕', family: 'sans-serif', weight: '700' },
 ];
 const presetColors = ['#1a1a1a','#FFFFFF','#E8423A','#3A7CE8','#2ECC71','#F39C12','#9B59B6','#1ABC9C','#FF6B6B','#34495E','#4ECDC4','#FFE66D','#FF8B94','#A8E6CF','#6C5CE7'];
 const gradPresets = [
@@ -229,9 +230,13 @@ function wrapText(c, text, maxWidth) {
   }
   return lines;
 }
-function draw() {
+async function draw() {
   const size = 1000, text = txtEl.value||'', fontSize = parseInt(fsSlider.value), font = fonts[currentFontIdx], padding = 60;
   const fontStr = `${font.weight} ${fontSize}px ${font.family}`;
+  // 매번 해당 폰트 로딩 보장
+  if (document.fonts && document.fonts.load) {
+    await document.fonts.load(fontStr, '가나다ABC');
+  }
   const maxW = size - padding*2, lineH = fontSize*1.25;
   ctx.font = fontStr;
   const lines = text ? wrapText(ctx, text, maxW) : [];
@@ -273,9 +278,14 @@ document.getElementById('btnDl').onclick = () => {
     alert('이미지를 꾹 눌러서 저장해주세요!');
   }
 };
-// 폰트 로딩 완료 후 draw (measureText 오작동 방지)
-if (document.fonts && document.fonts.ready) {
-  document.fonts.ready.then(() => draw());
+// 초기 전체 폰트 강제 로딩
+const allFontSpecs = [
+  "700 200px 'Noto Sans KR'",
+  "800 200px 'Nanum Gothic'",
+  "900 200px 'Noto Sans KR'",
+];
+if (document.fonts && document.fonts.load) {
+  Promise.all(allFontSpecs.map(f => document.fonts.load(f, '가나다ABC'))).then(() => draw());
 } else {
   draw();
 }
