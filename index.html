@@ -33,11 +33,9 @@ textarea::placeholder { color: var(--text3); }
 .font-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .font-btn { padding: 10px 8px; font-size: 13px; text-align: center; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface2); color: var(--text2); cursor: pointer; -webkit-appearance: none; appearance: none; touch-action: manipulation; }
 .font-btn.active { border-color: var(--accent); background: var(--accent); color: #fff; }
-.size-row { display: flex; align-items: center; gap: 12px; }
-.size-row input[type="range"] { flex: 1; -webkit-appearance: none; appearance: none; height: 5px; border-radius: 3px; background: var(--border); outline: none; cursor: pointer; }
-.size-row input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 3px solid #fff; box-shadow: 0 0 0 1px var(--border2); }
-.size-row input[type="range"]::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); border: 3px solid #fff; cursor: pointer; }
-.size-val { font-size: 15px; font-weight: 700; min-width: 44px; text-align: right; color: var(--text); font-variant-numeric: tabular-nums; }
+.size-btn-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.size-btn { padding: 9px 4px; font-size: 13px; font-weight: 600; text-align: center; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface2); color: var(--text2); cursor: pointer; font-family: "Noto Sans KR", sans-serif; touch-action: manipulation; -webkit-appearance: none; appearance: none; }
+.size-btn.active { border-color: var(--accent); background: var(--accent); color: #fff; }
 .tab-row { display: flex; gap: 4px; background: var(--surface2); border-radius: var(--radius-sm); padding: 3px; }
 .tab-btn { flex: 1; padding: 8px 0; font-size: 14px; font-weight: 600; text-align: center; border: none; border-radius: 6px; background: transparent; color: var(--text3); cursor: pointer; font-family: 'Noto Sans KR', sans-serif; touch-action: manipulation; }
 .tab-btn.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.10); }
@@ -98,9 +96,14 @@ canvas#thumbCanvas { width: 56px; height: 56px; display: block; }
     </div>
     <div class="field">
       <div class="label">글자 크기</div>
-      <div class="size-row">
-        <input type="range" id="fontSize" min="180" max="500" value="200" step="5">
-        <span class="size-val" id="fsVal">200</span>
+      <div class="size-btn-row" id="sizeBtnRow">
+        <button class="size-btn" data-size="180">180</button>
+        <button class="size-btn active" data-size="200">200</button>
+        <button class="size-btn" data-size="220">220</button>
+        <button class="size-btn" data-size="240">240</button>
+        <button class="size-btn" data-size="260">260</button>
+        <button class="size-btn" data-size="280">280</button>
+        <button class="size-btn" data-size="300">300</button>
       </div>
     </div>
     <div class="field">
@@ -159,8 +162,6 @@ const txtEl = document.getElementById('txt');
 const colorPicker = document.getElementById('colorPicker');
 const gradC1El = document.getElementById('gradC1');
 const gradC2El = document.getElementById('gradC2');
-const fsSlider = document.getElementById('fontSize');
-const fsValEl = document.getElementById('fsVal');
 const mainCanvas = document.getElementById('mainCanvas');
 const thumbCanvas = document.getElementById('thumbCanvas');
 const ctx = mainCanvas.getContext('2d');
@@ -198,7 +199,14 @@ colorPicker.addEventListener('input', () => { currentBg = colorPicker.value; doc
 gradC1El.addEventListener('input', () => { currentGrad.c1 = gradC1El.value; document.querySelectorAll('.grad-swatch').forEach(s => s.classList.remove('active')); draw(); });
 gradC2El.addEventListener('input', () => { currentGrad.c2 = gradC2El.value; document.querySelectorAll('.grad-swatch').forEach(s => s.classList.remove('active')); draw(); });
 txtEl.addEventListener('input', draw);
-fsSlider.addEventListener('input', () => { currentFontSize = parseInt(fsSlider.value); fsValEl.textContent = currentFontSize; draw(); });
+document.querySelectorAll('.size-btn').forEach(btn => {
+  btn.onclick = () => {
+    currentFontSize = parseInt(btn.dataset.size);
+    document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    draw();
+  };
+});
 document.getElementById('btnRandom').onclick = () => {
   const r = () => Math.floor(Math.random() * 256);
   const hex = () => '#' + [r(), r(), r()].map(v => v.toString(16).padStart(2, '0')).join('');
